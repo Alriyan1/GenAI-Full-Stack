@@ -1,5 +1,7 @@
+import { Link } from "react-router"
 
 const Register = () => {
+
     const handleSubmit=(e)=>{
         e.preventDefault()
     }
@@ -23,6 +25,7 @@ const Register = () => {
                 </div>
                 <button className="button primary-button">Register</button>
             </form>
+            <p>Already have an account? <Link to={"/login"}>Login</Link></p>
         </div>
     </main>
   )
