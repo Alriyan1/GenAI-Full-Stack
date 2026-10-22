@@ -1,19 +1,24 @@
-import { useContext, useEffect } from "react"
-import { AuthContext } from "../auth.context"
-import { getMe, login, logout, register } from "../services/auth.api"
+import { useContext, useEffect } from "react";
+import { AuthContext } from "../auth.context";
+import { login, register, logout, getMe } from "../services/auth.api";
+
+
 
 export const useAuth = () => {
-    const context = useContext(AuthContext)
 
+    const context = useContext(AuthContext)
     const { user, setUser, loading, setLoading } = context
+
 
     const handleLogin = async ({ email, password }) => {
         setLoading(true)
         try {
             const data = await login({ email, password })
             setUser(data.user)
+            return data.user
         } catch (err) {
-            console.log(err)
+            const message = err.response?.data?.message || err.message || "Failed to login. Please check credentials."
+            throw new Error(message)
         } finally {
             setLoading(false)
         }
@@ -24,11 +29,11 @@ export const useAuth = () => {
         try {
             const data = await register({ username, email, password })
             setUser(data.user)
-
+            return data.user
         } catch (err) {
-            console.log(err)
+            const message = err.response?.data?.message || err.message || "Failed to register account."
+            throw new Error(message)
         } finally {
-
             setLoading(false)
         }
     }
@@ -36,32 +41,29 @@ export const useAuth = () => {
     const handleLogout = async () => {
         setLoading(true)
         try {
-            const data = await logout()
+            await logout()
             setUser(null)
-
         } catch (err) {
-            console.log(err)
+            console.error("Logout error:", err)
         } finally {
-
             setLoading(false)
         }
     }
 
     useEffect(() => {
+
         const getAndSetUser = async () => {
             try {
+
                 const data = await getMe()
                 setUser(data.user)
-
-            } catch (err) {
-                console.log(err)
-            } finally {
+            } catch (err) { } finally {
                 setLoading(false)
-
             }
-
         }
-            getAndSetUser()
+
+        getAndSetUser()
+
     }, [])
 
     return { user, loading, handleRegister, handleLogin, handleLogout }
